@@ -1,0 +1,36 @@
+---
+title: "Interesting R Examples"
+author: "Burak Şimşek - IE582 - Fall 2020"
+date: "10/24/2020"
+output: html_document
+---
+
+```{r,echo=FALSE,results="hide", warning=FALSE}
+library(knitr)
+opts_chunk$set(tidy.opts=list(width.cutoff=60),tidy=TRUE)
+```
+
+
+
+1. [Machine Learning for Mental Health: 7 Methods](https://www.kaggle.com/benjaminlott/machine-learning-for-mental-health-7-methods)
+
+This example is significant source for people who researh mental illnesses as it has large scope of inputs. Besides, it might be decent to predict whether the patient has mental illnesses or not since the number of referrals to psychologists for mental illnesses has increased in the last decade.
+    
+2. [Education, Languages and Salary](https://www.kaggle.com/kailex/education-languages-and-salary)
+
+This notebook is interested as it remarks different aspect of education, code language and salary among all over the world. It has also great display with many graph and charts.
+
+3. [TED Talk Analysis in R](https://www.kaggle.com/kratisaxena/ted-talk-analysis-in-r)
+
+It is good to observe the evalution of TED Talks. It shows correlation of two output like views/durations or views/language and its results surprised me.
+
+4. [Wow Dataset - Exploratory Analysis](https://www.kaggle.com/thibalbo/wow-dataset-exploratory-analysis)
+
+Although this work is specific, it is catchy for me since i used to play Wow. It give interesting datas which is not known many players.(played time, popular zones, time to play till top level)
+
+5. [CarPrice Prediction using R(MLR+VIF)](https://www.kaggle.com/nkrajash/carprice-prediction-using-r-mlr-vif)
+
+This prediction is attractive compare to house pricing analysis as it has more variable. It shows the effect of each parameter on price with ggplot which increase the understanding of notebook by readers.
+
+
+**For more related works with IE 582 please check [my progress journal](https://github.com/BU-IE-582/fall20-buraksimsekkk/blob/master/index.md)**

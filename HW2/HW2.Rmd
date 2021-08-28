@@ -1,0 +1,409 @@
+---
+title: "HW2"
+author: "Burak Şimşek - IE582 - Fall 2020"
+date: "12/5/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libraries, warning=FALSE ,message=FALSE}
+#loading libraries
+library(ggplot2)
+library(dplyr)
+library(tidyverse)
+library(data.table)
+library(scatterplot3d)
+```
+
+
+```{r read data, warning=FALSE ,message=FALSE}
+#reading dataframes
+x_train=read.table("https://raw.githubusercontent.com/BU-IE-582/fall20-buraksimsekkk/master/HW2/uWaveGestureLibrary_X_TRAIN.txt")
+y_train=read.table("https://raw.githubusercontent.com/BU-IE-582/fall20-buraksimsekkk/master/HW2/uWaveGestureLibrary_Y_TRAIN.txt")
+z_train=read.table("https://raw.githubusercontent.com/BU-IE-582/fall20-buraksimsekkk/master/HW2/uWaveGestureLibrary_Z_TRAIN.txt")
+
+```
+
+# PART A 
+###  Read Data and Plot Gestures
+
+Finding first indexes for each class.
+
+```{r degistir, warning=FALSE ,message=FALSE}
+
+class_ind = c()
+
+for(i in 1:8) 
+  {
+  class_ind[i]  <-which(x_train$V1==i)[1]
+   
+  }
+
+```
+
+To obtain gesture graph, firstly, data tables are made created for specified indexes from previous chunk. The velocity and location matrix are calculated respectively by taking cumsum. At last 3d visualization of gesture are made with scatterplot3d. 
+
+```{r gesture1, warning=FALSE ,message=FALSE}
+  i=1
+  gesture1 <- data.table(x=t(x_train[class_ind[i],2:316]), 
+                         y=t(y_train[class_ind[i],2:316]),
+                         z=t(z_train[class_ind[i],2:316]))
+
+  vel_gesture1 <- cumsum(gesture1)
+  loc_gesture1 <- cumsum(vel_gesture1)
+  
+    scatterplot3d(loc_gesture1$x.11,loc_gesture1$y.11,loc_gesture1$z.11,  main = "GESTURE 1",xlab = "X Location",ylab = "Y Location",zlab = "Z Location",col.axis="pink", col.grid="lightblue", color = "darkgreen", type = "p")
+
+```
+
+```{r gesture2, warning=FALSE ,message=FALSE}
+  i=2
+  gesture2 <- data.table(x=t(x_train[class_ind[i],2:316]), 
+                         y=t(y_train[class_ind[i],2:316]),
+                         z=t(z_train[class_ind[i],2:316]))
+
+  vel_gesture2 <- cumsum(gesture2)
+  loc_gesture2 <- cumsum(vel_gesture2)
+  
+    scatterplot3d(loc_gesture2$x.15,loc_gesture2$y.15,loc_gesture2$z.15,  main = "GESTURE 2",xlab = "X Location",ylab = "Y Location",zlab = "Z Location",col.axis="pink", col.grid="lightblue", color = "darkgreen", type = "p")
+
+```
+
+```{r gesture3, warning=FALSE ,message=FALSE}
+  i=3
+  gesture3 <- data.table(x=t(x_train[class_ind[i],2:316]), 
+                         y=t(y_train[class_ind[i],2:316]),
+                         z=t(z_train[class_ind[i],2:316]))
+  vel_gesture3 <- cumsum(gesture3)
+  loc_gesture3 <- cumsum(vel_gesture3)
+  
+  
+    scatterplot3d(loc_gesture3$x.4,loc_gesture3$y.4,loc_gesture3$z.4,  main = "GESTURE 3",xlab = "X Location",ylab = "Y Location",zlab = "Z Location",col.axis="pink", col.grid="lightblue", color = "darkgreen", type = "p")
+
+```
+
+```{r gesture4, warning=FALSE ,message=FALSE}
+  i=4
+  gesture4 <- data.table(x=t(x_train[class_ind[i],2:316]), 
+                         y=t(y_train[class_ind[i],2:316]),
+                         z=t(z_train[class_ind[i],2:316]))
+
+  vel_gesture4 <- cumsum(gesture4)
+  loc_gesture4 <- cumsum(vel_gesture4)
+  
+    scatterplot3d(loc_gesture4$x.5,loc_gesture4$y.5,loc_gesture4$z.5,  main = "GESTURE 4",xlab = "X Location",ylab = "Y Location",zlab = "Z Location",col.axis="pink", col.grid="lightblue", color = "darkgreen", type = "p")
+
+```
+
+```{r gesture5, warning=FALSE ,message=FALSE}
+  i=5
+  gesture5 <- data.table(x=t(x_train[class_ind[i],2:316]), 
+                         y=t(y_train[class_ind[i],2:316]),
+                         z=t(z_train[class_ind[i],2:316]))
+
+  vel_gesture5 <- cumsum(gesture5)
+  loc_gesture5 <- cumsum(vel_gesture5)
+  
+    scatterplot3d(loc_gesture5$x.2,loc_gesture5$y.2,loc_gesture5$z.2,  main = "GESTURE 5",xlab = "X Location",ylab = "Y Location",zlab = "Z Location",col.axis="pink", col.grid="lightblue", color = "darkgreen", type = "p")
+
+```
+```{r gesture6, warning=FALSE ,message=FALSE}
+  i=6
+  gesture6 <- data.table(x=t(x_train[class_ind[i],2:316]), 
+                         y=t(y_train[class_ind[i],2:316]),
+                         z=t(z_train[class_ind[i],2:316]))
+
+  vel_gesture6 <- cumsum(gesture6)
+  loc_gesture6 <- cumsum(vel_gesture6)
+  
+    scatterplot3d(loc_gesture6$x.1,loc_gesture6$y.1,loc_gesture6$z.1,  main = "GESTURE 6",xlab = "X Location",ylab = "Y Location",zlab = "Z Location",col.axis="pink", col.grid="lightblue", color = "darkgreen", type = "p")
+
+```
+
+```{r gesture7, warning=FALSE ,message=FALSE}
+  i=7
+  gesture7 <- data.table(x=t(x_train[class_ind[i],2:316]), 
+                         y=t(y_train[class_ind[i],2:316]),
+                         z=t(z_train[class_ind[i],2:316]))
+
+  vel_gesture7 <- cumsum(gesture7)
+  loc_gesture7 <- cumsum(vel_gesture7)
+  
+    scatterplot3d(loc_gesture7$x.7,loc_gesture7$y.7,loc_gesture7$z.7,  main = "GESTURE 7",xlab = "X Location",ylab = "Y Location",zlab = "Z Location",col.axis="pink", col.grid="lightblue", color = "darkgreen", type = "p")
+
+```
+```{r gesture8, warning=FALSE ,message=FALSE}
+  i=8
+  gesture8 <- data.table(x=t(x_train[class_ind[i],2:316]), 
+                         y=t(y_train[class_ind[i],2:316]),
+                         z=t(z_train[class_ind[i],2:316]))
+  vel_gesture8 <- cumsum(gesture8)
+  loc_gesture8 <- cumsum(vel_gesture8)
+  
+  
+    scatterplot3d(loc_gesture8$x.6,loc_gesture8$y.6,loc_gesture8$z.6,  main = "GESTURE 8",xlab = "X Location",ylab = "Y Location",zlab = "Z Location",col.axis="pink", col.grid="lightblue", color = "darkgreen", type = "p")
+
+```
+# PART B
+###  PCA Analysis and Ploting 2 Random Class Data
+
+In this part raw data manipulated for long format.
+For each axis (x,y,z), location matrixes are found like part a.
+Then obtaion long format by using melt function.
+
+```{r data manupilating, warning=FALSE ,message=FALSE}
+
+class <- x_train[1]
+colnames(class)[1] = "class"
+
+
+x_acc <- x_train[-1]
+x_velocity <- t(apply(x_acc, 1, cumsum))
+x_location <- t(apply(x_velocity, 1, cumsum))
+x_location <- cbind(x_location,class)
+x_position <- as.data.table(x_location) %>% mutate(time_series_id = seq(nrow(x_location)))
+x_long     <- x_position %>% melt(id.vars = c("class", "time_series_id"))
+colnames(x_long)[3] = "time_index"
+colnames(x_long)[4] = "X"
+
+y_acc <- y_train[-1]
+y_velocity <- t(apply(y_acc, 1, cumsum))
+y_location <- t(apply(y_velocity, 1, cumsum))
+y_location    <- cbind(y_location,class)
+y_position <- as.data.table(y_location) %>% mutate(time_series_id = seq(nrow(y_location)))
+y_long     <- melt(y_position, id.vars = c("class", "time_series_id"))
+colnames(y_long)[3] = "time_index"
+colnames(y_long)[4] = "Y"
+
+z_acc <- z_train[-1]
+z_velocity <- t(apply(z_acc, 1, cumsum))
+z_location <- t(apply(z_velocity, 1, cumsum))
+z_location <- cbind(z_location,class)
+z_position <- as.data.table(z_location) %>% mutate(time_series_id = seq(nrow(z_location)))
+z_long     <- melt(z_position, id.vars = c("class", "time_series_id"))
+colnames(z_long)[3] = "time_index"
+colnames(z_long)[4] = "Z"
+```
+
+Arranging long format by adding y and z values to x_long data table and arrange table by time series id.
+
+```{r Long Format Arranging, warning=FALSE ,message=FALSE}
+xyz_long <- cbind(x_long, y_long[,4], z_long[,4] )
+xyz_long <- arrange(xyz_long, time_series_id) 
+
+```
+
+
+Dimension reduction applied with pca from 3D to 1D.
+Summary describe that univariate function can cover up around %54 of 3D data.
+It can be covered up til %90 in 2 dimension.
+
+```{r PCA, warning=FALSE ,message=FALSE}
+
+pca <- princomp(xyz_long[,4:6], cor=T) 
+summary(pca)
+
+```
+By using univariate function, prediction point for each time index are made.
+Then, randomly selected 16 time series (2 time series for each class) are plotted.
+
+```{r Predict, warning=FALSE ,message=FALSE}
+
+univariate <- xyz_long %>% mutate(value = predict(pca,xyz_long[,4:6])[,1]) %>%  select(-X, -Y, -Z)
+
+
+example <- univariate %>% filter(time_series_id %in% c(38,82,94,95,96,184,199,371,378,481,515,642,713,779,820,845))
+
+
+
+ggplot(example, aes(x= time_index, y= value , colour=time_series_id)) +
+       geom_line() + xlab("Time Index") + ylab("Value") + theme(plot.title=element_text(hjust = 0.5)) 
+  
+```
+Observing 2 random time series for class 1. Both time series has similer pattern. Therefore, univariate form might be sufficient to dissociate classes from each other.
+
+```{r class1, warning=FALSE ,message=FALSE}
+
+line_1  <- univariate %>% filter(time_series_id ==38  )
+line_2  <- univariate %>% filter(time_series_id ==378 )
+
+class_1 <- cbind(line_1 , line_2$value)
+
+colnames(class_1)[4] = "line_1"
+colnames(class_1)[5] = "line_2"
+
+print(ggplot(class_1) + geom_point(aes(x=time_index, y=line_1)) + geom_point(aes(x=time_index, y=line_2), color = "red") + xlab("Time Index") + ylab("Value"))
+
+```
+Observing 2 random time series for class 2. Time series has different pattern Therefore, univariate form might not be sufficient to dissociate classes from each other.It can be better to use 2 dimensional form to cover up more datas. 
+
+```{r class2, warning=FALSE ,message=FALSE}
+
+line_3  <- univariate %>% filter(time_series_id ==82  )
+line_4  <- univariate %>% filter(time_series_id ==481 )
+
+class_2 <- cbind(line_3 , line_4$value)
+
+colnames(class_2)[4] = "line_3"
+colnames(class_2)[5] = "line_4"
+
+print(ggplot(class_2) + geom_point(aes(x=time_index, y=line_3)) + geom_point(aes(x=time_index, y=line_4), color = "red") + xlab("Time Index") + ylab("Value"))
+```
+
+Observing 2 random time series for class 3. Time series has different pattern Therefore, univariate form might not be sufficient to dissociate classes from each other.It can be better to use 2 dimensional form to cover up more datas. 
+
+```{r class3, warning=FALSE ,message=FALSE}
+
+line_5  <- univariate %>% filter(time_series_id ==94  )
+line_6  <- univariate %>% filter(time_series_id ==515 )
+
+class_3 <- cbind(line_5 , line_6$value)
+colnames(class_3)[4] = "line_5"
+colnames(class_3)[5] = "line_6"
+
+print(ggplot(class_3) + geom_point(aes(x=time_index, y=line_5)) + geom_point(aes(x=time_index, y=line_6), color = "red") + xlab("Time Index") + ylab("Value"))
+
+```
+
+Observing 2 random time series for class 4. Time series has different pattern Therefore, univariate form might not be sufficient to dissociate classes from each other.It can be better to use 2 dimensional form to cover up more datas. 
+
+```{r class4, warning=FALSE ,message=FALSE}
+
+line_7  <- univariate %>% filter(time_series_id ==95  )
+line_8  <- univariate %>% filter(time_series_id ==642 )
+
+class_4 <- cbind(line_7 , line_8$value)
+
+colnames(class_4)[4] = "line_7"
+colnames(class_4)[5] = "line_8"
+
+print(ggplot(class_4) + geom_point(aes(x=time_index, y=line_7)) + geom_point(aes(x=time_index, y=line_8), color = "red") + xlab("Time Index") + ylab("Value"))
+
+```
+
+Observing 2 random time series for class 5. Both time series has similer pattern. Therefore, univariate form might be sufficient to dissociate classes from each other.
+
+```{r class5, warning=FALSE ,message=FALSE}
+
+line_9  <- univariate %>% filter(time_series_id ==96  )
+line_10 <- univariate %>% filter(time_series_id ==713 )
+
+class_5 <- cbind(line_9 , line_10$value)
+
+colnames(class_5)[4] = "line_9"
+colnames(class_5)[5] = "line_10"
+
+print(ggplot(class_5) + geom_point(aes(x=time_index, y=line_9)) + geom_point(aes(x=time_index, y=line_10), color = "red") + xlab("Time Index") + ylab("Value"))
+
+```
+
+Observing 2 random time series for class 6. Both time series has similer pattern. Therefore, univariate form might be sufficient to dissociate classes from each other.
+
+```{r class6, warning=FALSE ,message=FALSE}
+
+
+line_11 <- univariate %>% filter(time_series_id ==184 )
+line_12 <- univariate %>% filter(time_series_id ==779 )
+
+class_6 <- cbind(line_11 , line_12$value)
+
+colnames(class_6)[4] = "line_11"
+colnames(class_6)[5] = "line_12"
+
+print(ggplot(class_6) + geom_point(aes(x=time_index, y=line_11)) + geom_point(aes(x=time_index, y=line_12), color = "red") + xlab("Time Index") + ylab("Value"))
+
+```
+
+Observing 2 random time series for class 2. Time series has different pattern Therefore, univariate form might not be sufficient to dissociate classes from each other.It can be better to use 2 dimensional form to cover up more datas. 
+
+```{r class7, warning=FALSE ,message=FALSE}
+
+line_13 <- univariate %>% filter(time_series_id ==199 )
+line_14 <- univariate %>% filter(time_series_id ==820 )
+
+class_7 <- cbind(line_13 , line_14$value)
+
+colnames(class_7)[4] = "line_13"
+colnames(class_7)[5] = "line_14"
+
+print(ggplot(class_7) + geom_point(aes(x=time_index, y=line_13)) + geom_point(aes(x=time_index, y=line_14), color = "red") + xlab("Time Index") + ylab("Value"))
+
+```
+
+Observing 2 random time series for class 8. Time series has different pattern Therefore, univariate form might not be sufficient to dissociate classes from each other.It can be better to use 2 dimensional form to cover up more datas.
+
+```{r class8, warning=FALSE ,message=FALSE}
+
+line_15 <- univariate %>% filter(time_series_id ==371 )
+line_16 <- univariate %>% filter(time_series_id ==845 )
+
+class_8 <- cbind(line_15 , line_16$value)
+
+colnames(class_8)[4] = "line_15"
+colnames(class_8)[5] = "line_16"
+
+print(ggplot(class_8) + geom_point(aes(x=time_index, y=line_15)) + geom_point(aes(x=time_index, y=line_16), color = "red") + xlab("Time Index") + ylab("Value"))
+
+```
+
+While, 4 of the graphs have similar, other 4 does not follow similar pattern. It supports the data that declared PCA with %54.
+
+
+# PART C
+### Appying PCA for Each Class Individually and Observe Similarities
+
+Previously, PCA was applied for all data. In this part, PCA are applied for each class seperately.
+Variances covered by component 1 are between %42 and %65. It was %54 in previous part. It can be said that choosing all data or choosing class datas seperatesly does not change the result. Moreover, variances covered by component 1 and 2 is almost similar too.
+
+```{r PARTC, warning=FALSE ,message=FALSE}
+
+
+for (i in 1:8){
+xyz_long_class <- xyz_long %>% filter(class==i)
+pca_class <- prcomp(xyz_long_class[,4:6], scale=TRUE)
+print("Summary for Class:"[i])
+  print(i)
+print(summary(pca_class))
+cat("\n")
+cat("\n")}
+
+
+```
+
+
+
+# PART D
+### Visualize classification by Using Reduce Dimentions in Time Series
+
+In this particular example, it is tried to classified 8 different gesture. One of the best method for classification is distance method. In this part, euclidean distance are applied to find distance between points and mapped on 2d plan. 
+
+```{r PARTD, warning=FALSE ,message=FALSE}
+
+
+all_data<- cbind(x_train,y_train[,-1],z_train[,-1])
+all_data[,-1]=scale(all_data[,-1])
+
+distance = as.matrix(dist(all_data[,-1], method = "euclidean"))
+
+
+scale <- cmdscale(distance, k=2) 
+scale_data <- all_data %>% select(V1) %>% mutate(coord1=scale[,1], coord2=scale[,2], Classes = as_factor(V1))
+
+ggplot(scale_data) + geom_point(aes(x=coord1, y=coord2, colour=Classes)) + xlab("Coordinate 1") + ylab("Coordinate 2") + theme(plot.title=element_text(hjust = 0.5)) + ggtitle("Visualizing the time series") 
+
+```
+
+
+
+
+
+
+
+
+
+
+
+

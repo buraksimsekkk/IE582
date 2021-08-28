@@ -1,0 +1,248 @@
+---
+title: "HW3"
+author: "Burak Şimşek - IE582 - Fall 2020"
+date: "12/26/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libraries, warning=FALSE ,message=FALSE}
+#loading libraries
+library(ggplot2)
+library(dplyr)
+library(tidyverse)
+library(tidyr)
+library(data.table)
+library(scatterplot3d)
+library(Metrics)
+library(glmnet)
+```
+
+The aim of this task is making a forecast the next-day's hourly consumption by using a penalized regression approach.
+
+```{r read data, warning=FALSE ,message=FALSE}
+#reading dataframes
+base_data = read.csv("https://raw.githubusercontent.com/BU-IE-582/fall20-buraksimsekkk/master/HW3/RealTimeConsumption-01012016-30112020.csv")
+
+```
+
+```{r Data Manipulation , warning=FALSE ,message=FALSE}
+
+data <- base_data
+
+data$Date        = as.Date(data$Date, "%d.%m.%Y")
+data$Hour        = as.numeric(sub(":00","", data$Hour))
+data$Consumption = as.numeric(sub(",","" , data$Consumption..MWh.))
+
+data <- select(data,-Consumption..MWh.)
+data <- data %>% mutate(index = c(1:nrow(data)),Date )
+data <- data[,c(4,1,2,3)]
+
+data <- data[-2233:-2256,]
+data <- data[-2113:-2136,]
+data <- data[-2065:-2088,]
+
+
+
+str(data)
+
+```
+# TASK A
+
+```{r Naive Prediction, warning=FALSE ,message=FALSE}
+
+data <- data %>% mutate(frcst_lag48  = lag(data$Consumption, 48, na.pad = TRUE), 
+                        frcst_lag168 = lag(data$Consumption, 168, na.pad = TRUE))
+test  <- data %>% tail(30*24)
+
+plot_ref <- test %>% tail(48)
+
+print("Real and Predicted Consumpiton between 29.11.2020 and 30.11.2020")
+print(ggplot(plot_ref) + geom_line(aes(x=index, y=Consumption)) + geom_line(aes(x=index, y=frcst_lag48), color = "red")  + xlab("Time 29.11.2020-30.11.2020") + ylab("Consumption"))
+
+
+frcst_lag48_mape  <- mape(test$frcst_lag48, test$Consumption)
+frcst_lag168_mape <- mape(test$frcst_lag168, test$Consumption)
+
+
+```
+Computed "Mean Absolute Percentage Errors(MAPE)" values according to lag48 and lag168 are %7.76 and %3.65 respectively
+
+# TASK B
+
+The long format data is already obtained on Task A. This dataframe will be used directly to obtain linear regression model according to two features(forecast of lag48 and forecast of lag168).
+
+```{r Linear Regression Model, warning=FALSE ,message=FALSE}
+
+train <- data %>% head(-30*24)
+
+lrm <- lm(Consumption ~ frcst_lag48 + frcst_lag168, train)
+
+summary(lrm)
+
+```
+Linear regresion model is obtained as y= 0.0016 + 0.31x1 + 0.64x2 where x1 value of lag48 and x2 value of lag168.
+The model can be considered as sufficiently significant since its p-value(2.2e-16) much lower than commen score (0.001). On the other hand, although there is no certain Adjusted R-Squared value for significance of model and expected value of it differs from field to field, Adjusted R-Squared value of the model(%77.53) is higher than %64 which is accepted as threshold.
+
+
+```{r Linear REgression Model Prediction, warning=FALSE ,message=FALSE}
+
+lrm_prediction <- predict(lrm, newdata = test)
+lrm_mape <- mape(lrm_prediction, test$Consumption)
+print(lrm_mape)
+
+```
+
+MAPE of linear regression model(lrm) is computed %4.26 which is less than naive forecast of lag48 (%7.76) and higher than naive forecast of lag168 (%3.65).
+
+The performance of are prediction models from highest to lowest are "naive forecast of lag168" , "linear regression model" and "naive forecast of lag48"
+
+This can be occurred due to seasonality. The consumption values can differ from weekends to weekdays which cannot computed in lag48 forecast. Moreover, hours can show a seasonality too. In task C, the effect of this will be observed.
+
+# TASK C
+
+Daily or Weekly seasonality is not enough to predict the electricity consumption since it also depends on daylight. In this case, each hour should be considered seperately. On this part, electricity consumptions are filtered for each hour and made 24 different predictions for each hour.
+
+```{r Hourly Linear REgression Model Prediction, warning=FALSE ,message=FALSE}
+
+Hourly_lrm_mape <- 0 # give a zero value to prevent numeric error
+
+print("Hourly Linear Regression Model Performance from 0 to 23:")
+for (i in 0:23) {
+  
+filtered_model <- filter(train, Hour==i)  
+test_model     <- filter(test, Hour==i)
+                     
+Hourly_lrm     <- lm(Consumption ~ frcst_lag48 + frcst_lag168, filtered_model)
+
+
+
+Hourly_lrm_prediction <- predict(Hourly_lrm, newdata = test_model)
+Hourly_lrm_mape[i+1]    <- mape(Hourly_lrm_prediction, test_model$Consumption)
+
+#print("Model For Hour:" )
+#print(i)
+
+#print(summary(Hourly_lrm)) This line is commented since it is long text. However, it can be used if summary of all models are interested.
+print(Hourly_lrm_mape[i+1])
+
+}
+
+
+print("Average Hourly Linear Regression Model MAPE:")
+avg_Hourly_lrm_mape <- mean(Hourly_lrm_mape[1:24])
+print(avg_Hourly_lrm_mape)
+
+```
+Although hourly prediction shows better performance for specific hours prediction, the average performans of 24 hourly models is %4.38.In this situation, this model fall behind lag168 naive forecast(%3.65) 
+
+
+
+# TASK D
+
+Firstly, data should be manipulated for wide format.
+
+
+```{r Data Manipulation for wide format, warning=FALSE ,message=FALSE}
+
+
+train_wide48 <- train[ , -4]
+train_wide48 <- train_wide48[,2:4 ] %>% pivot_wider(names_from = Hour, values_from = frcst_lag48, names_prefix = "lag48_")
+train_wide48 <- train_wide48[-1:-7,]  # first 7 days are removed due to no value for lag168. (we will merge lag48 and lag168 datas)
+test_wide48 <- test[ , -4]
+test_wide48 <- test_wide48[,2:4 ] %>% pivot_wider(names_from = Hour, values_from = frcst_lag48, names_prefix = "lag48_")
+
+
+train_wide168 <- train[ , -4:-5]
+train_wide168 <- train_wide168[,2:4 ] %>% pivot_wider(names_from = Hour, values_from = frcst_lag168, names_prefix = "lag168_")
+train_wide168 <- train_wide168[-1:-7,]   # first 7 days are removed due to no value for lag168. (we will merge lag48 and lag168 datas)
+test_wide168 <- test[ , -4:-5]
+test_wide168 <- test_wide168[,2:4 ] %>% pivot_wider(names_from = Hour, values_from = frcst_lag168, names_prefix = "lag168_")
+
+
+train_wide_cons <- train[,2:4 ] %>% pivot_wider(names_from = Hour, values_from = Consumption, names_prefix = "consumption_")
+train_wide_cons <- train_wide_cons[-1:-7,]  # first 7 days are removed due to no value for lag168. (we will merge lag48 and lag168 datas)
+test_wide_cons <- test[,2:4 ] %>% pivot_wider(names_from = Hour, values_from = Consumption, names_prefix = "consumption_")
+
+
+train_wide48_168 <- cbind(train_wide48, train_wide168[,-1])
+test_wide48_168 <- cbind(test_wide48, test_wide168[,-1])
+
+
+```
+
+After obtaining wide format, dataframes are  converted to matrixes to use lasso function.
+
+```{r Lasso, warning=FALSE ,message=FALSE}
+
+matrix_train <- train_wide48_168[,-1]
+matrix_train <- unnest(matrix_train)
+matrix_train <- data.matrix(matrix_train)
+
+matrix_test <- test_wide48_168[,-1]
+matrix_test <- unnest(matrix_test)
+matrix_test <- data.matrix(matrix_test)
+
+
+matrix_train_cons <- train_wide_cons[,-1]
+matrix_train_cons <- unnest(matrix_train_cons)
+matrix_train_cons <- data.matrix(matrix_train_cons)
+
+matrix_test_cons <- test_wide_cons[,-1]
+matrix_test_cons <- unnest(matrix_test_cons)
+matrix_test_cons <- data.matrix(matrix_test_cons)
+
+
+lasso_mape <- 0 # give a zero value to prevent numeric error
+
+
+
+print("Lasso Performance from 0 to 23:")
+for (i in 0:23) {
+
+test_hour <- filter(test, Hour==i)
+model <- cv.glmnet(x=matrix_train, y=matrix_train_cons[,i+1])
+  
+predict_model<- predict(model, newx=matrix_test)
+
+lasso_mape[i+1] <- mape(predict_model, test_hour$Consumption)
+
+
+print(lasso_mape[i+1])
+
+}
+
+avg_lasso_mape <- mean(lasso_mape[1:24])
+
+
+print("Average Value of all hours")
+print(mean(lasso_mape[1:24]))
+
+
+```
+
+Average performance of penalized regression approaches gives %2.44 error rate which is the best model so far. From all of these result, we can deduce that electricity usage depend on seasonilities of hours and days.
+
+
+# TASK F
+
+
+```{r Comparasion, warning=FALSE ,message=FALSE}
+
+
+boxplot(0.0776, 0.0365, 0.0438, Hourly_lrm_mape, lasso_mape, ylab="MAPE Comparision", xlab="Methods", names=c("Lag48","Lag168","LinearReg","HourlyReg","PenalizedReg"))
+
+
+```
+
+
+When 5 different approach compared, the worst one is naive lag48 which misses many relation of model. Basic linear regression also couldn't find proper relations due to seasonalities. It becomes better on naive lag168 approach since it involves daily changes due to weekdays and weekends. In hourly regression, seasonality due to hours can be catched but values depends on old historical datas. At the end penalized regression gives best result since it both involves hourly and daily changes in the model.
+
+
+
+
+
+

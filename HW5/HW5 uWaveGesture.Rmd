@@ -1,0 +1,115 @@
+---
+title: "HW5"
+author: "Burak Şimşek - IE582 - Fall 2020"
+date: "2/14/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+###HOMEWORK 5 uWaveGesture
+
+```{r libraries, warning=FALSE ,message=FALSE}
+#loading libraries
+library(ggplot2)
+library(dplyr)
+library(tidyverse)
+library(data.table)
+library(caret)
+library(skimr)
+```
+
+```{r read data, warning=FALSE ,message=FALSE}
+#reading dataframes
+x_train <- read.table("https://raw.githubusercontent.com/BU-IE-582/fall20-buraksimsekkk/master/HW5/uWaveGestureLibrary_X_TRAIN")
+y_train <- read.table("https://raw.githubusercontent.com/BU-IE-582/fall20-buraksimsekkk/master/HW5/uWaveGestureLibrary_Y_TRAIN")
+z_train <- read.table("https://raw.githubusercontent.com/BU-IE-582/fall20-buraksimsekkk/master/HW5/uWaveGestureLibrary_Z_TRAIN")
+x_test  <- read.table("https://raw.githubusercontent.com/BU-IE-582/fall20-buraksimsekkk/master/HW5/uWaveGestureLibrary_X_TEST")
+y_test  <- read.table("https://raw.githubusercontent.com/BU-IE-582/fall20-buraksimsekkk/master/HW5/uWaveGestureLibrary_Y_TEST")
+z_test  <- read.table("https://raw.githubusercontent.com/BU-IE-582/fall20-buraksimsekkk/master/HW5/uWaveGestureLibrary_Z_TEST")
+
+```
+
+
+#PART A
+
+Since there are x, y,z dimentions on both train and data, we need to combine them.
+
+```{r data manupulation , warning=FALSE ,message=FALSE}
+#column wide binding of x, y,z data
+
+train <- cbind(x_train, y_train, z_train)
+test  <- cbind(x_test, y_test, z_test)
+
+
+#changeing train and test data colomn name to avoid duplications.
+train_features <- colnames(train) %>% make.names(unique = TRUE)
+test_features  <- colnames(test) %>% make.names(unique = TRUE)
+
+colnames(train) <-train_features
+colnames(test)  <-test_features
+
+```
+
+To fit a model we need to scale the data. 
+
+```{r data manupulation2 , warning=FALSE ,message=FALSE}
+#Scaling both train and test data.
+
+train[,-1] <- scale(train[,-1])
+test[,-1] <- scale(test[,-1])
+
+#removing target value from train and test data
+train_data <- train[,-1]
+test_data  <- test[,-1]
+
+#selecting target values of test data
+class_test <- test$V1 %>% as.factor
+
+```
+
+After all data manupulations completed, fit model can be created.
+
+```{r knn , warning=FALSE ,message=FALSE}
+#making knn model with 3 repeatation with 10-fold cross validation for 5 different k valee (5, 7, 9, 11, 13)
+
+set.seed(50)
+n_folds <- 10
+ctrl <- trainControl(method="repeatedcv",repeats = 3, number = n_folds) #,classProbs=TRUE,summaryFunction = twoClassSummary)
+knnFit <- train(V1 ~ ., data = train, method = "knn", trControl = ctrl, preProcess = c("center","scale"), tuneLength = 5)
+print(knnFit)
+```
+
+Five different k measure is tested. k=5 is minimize the error of a 10-fold cross validation with 0,60 RMSE valeu.
+Thus, we will use k=5 for part b and c.
+
+#PART B
+
+```{r knn prediction, warning=FALSE ,message=FALSE}
+#Making prediction by taking k=5
+
+pred <- predict(knnFit, test_data) 
+pred <-  round(pred,0) %>% as.factor
+
+cm <- confusionMatrix(pred, class_test)
+
+print(cm$table)
+print(cm[["overall"]][["Accuracy"]])
+print(cm[["byClass"]])
+
+```
+
+The confusion matrix of model is shown in the above table. The general accuracy of model gives 88.27%
+The separate class accracy can also be seen.
+
+
+
+#PART C
+If we train model according to final_dist = w1distx, + w2disty + w3*distz, it will change the accuray of model. This method might be reasonable if one of the distance effect is higher than other. We can handle this unbalancing by weighting distancs.
+
+
+
+
+

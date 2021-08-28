@@ -1,0 +1,195 @@
+---
+title: "HW5 ECG"
+author: "Burak Şimşek - IE582 - Fall 2020"
+date: "2/14/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+###HOMEWORK 5 ECG
+
+```{r libraries, warning=FALSE ,message=FALSE}
+#loading libraries
+library(caret)
+library(ggplot2)
+library(dplyr)
+library(tidyverse)
+library(data.table)
+library(glmnet)
+library(ROSE)
+```
+
+#PART A
+
+After receiving data, logistic regression model fit found and then prediction of test class values found by using test raw data.
+
+```{r read data, warning=FALSE ,message=FALSE}
+#reading dataframes
+ecg_train <- read.table("https://raw.githubusercontent.com/BU-IE-582/fall20-buraksimsekkk/master/HW5/ecgTRAIN")
+ecg_test <- read.table("https://raw.githubusercontent.com/BU-IE-582/fall20-buraksimsekkk/master/HW5/ecgTEST")
+
+
+```
+
+```{r data manuplation, warning=FALSE ,message=FALSE}
+#reading dataframes
+
+x_ecg_train <- ecg_train[,2:ncol(ecg_train)] %>% as.matrix()
+y_ecg_train <- ecg_train[,1]
+x_ecg_test  <- ecg_test[,2:ncol(ecg_test)] %>% as.matrix()
+y_ecg_test  <- ecg_test[,1]
+
+
+set.seed(50)
+model <- cv.glmnet(x_ecg_train, y_ecg_train, family='binomial',nfolds=10)
+
+
+ecg_predicted_test   <- predict(model, x_ecg_test,s='lambda.min',type = "class")
+
+
+cm_test <- confusionMatrix(as.factor(ecg_predicted_test), as.factor(y_ecg_test))
+
+
+balanced_accuracy_test  <- cm_test[["byClass"]][["Balanced Accuracy"]]
+
+#printing confusion matrix results of model1
+print(cm_test$table)
+```
+
+
+```{r confusion matrix1, warning=FALSE ,message=FALSE}
+#printing confusion matrix results of model1
+print(balanced_accuracy_test)
+
+```
+The model1 gives 79,07% accuracy.
+
+#PART B
+
+
+```{r model lambda.min, warning=FALSE ,message=FALSE}
+model[["lambda.min"]]
+
+```
+
+
+```{r model lambda.graph, warning=FALSE ,message=FALSE}
+
+plot(model[["lambda"]])
+
+```
+
+#PART C
+
+```{r time diff, warning=FALSE ,message=FALSE}
+#reading dataframes
+
+time_diff_train <- matrix(nrow = nrow(x_ecg_train), ncol = ncol(x_ecg_train)-1)
+time_diff_test <- matrix(nrow = nrow(x_ecg_train), ncol = ncol(x_ecg_train)-1)
+
+for (i in 2:96) {
+  
+time_diff_train[,i-1] <- x_ecg_train[,i] - x_ecg_train[,i-1]
+time_diff_test[,i-1]  <- x_ecg_test[,i] - x_ecg_test[,i-1]
+
+}
+
+#time_dif <- time_dif[-90,]
+#x_ecg_test <- x_ecg_test[-90,]
+#x_ecg_train <- x_ecg_train[-90,]
+#y_ecg_test <- as.matrix(y_ecg_test)
+#y_ecg_test <- y_ecg_test[-90,]
+#y_ecg_train <- as.matrix(y_ecg_train)
+#y_ecg_train <- y_ecg_train[-90,]
+
+
+set.seed(50)
+model2 <- cv.glmnet(time_diff_train, y_ecg_train, family='binomial',nfolds=10)
+
+
+diff_ecg_predicted_test   <- predict(model2, time_diff_test, s='lambda.min' , type = "class")
+
+
+cm_test2  <- confusionMatrix(as.factor(diff_ecg_predicted_test), as.factor(y_ecg_test))
+
+
+balanced_accuracy_test2  <- cm_test2[["byClass"]][["Balanced Accuracy"]]
+
+#printing confusion matrix results of model2
+print(cm_test2$table)
+```
+The model gives 79,07% accuracy.
+
+
+```{r confusion matrix2, warning=FALSE ,message=FALSE}
+#printing confusion matrix results of model2
+print(balanced_accuracy_test2)
+
+```
+
+The model2 gives 79,68% accuracy.
+
+#PART D
+
+```{r model2 lambda.min, warning=FALSE ,message=FALSE}
+model2[["lambda.min"]]
+
+```
+
+```{r model2 lambda.graph, warning=FALSE ,message=FALSE}
+
+plot(model2[["lambda"]])
+
+```
+
+The model2 result is similar to model1 since there is similar relation, which can be interpred by logistic regression ,between data values and their intervals. Thus, We  obtain very close test accuracy.
+
+#PART E
+
+```{r combined data, warning=FALSE ,message=FALSE}
+#reading dataframes
+
+comb_train <- cbind(x_ecg_train, time_diff_train)
+comb_test  <- cbind(x_ecg_test, time_diff_test)
+
+set.seed(50)
+model3 <- cv.glmnet(comb_train, y_ecg_train, family='binomial',nfolds=10)
+
+
+comb_ecg_predicted_test   <- predict(model3, comb_test, s='lambda.min' , type = "class")
+
+
+cm_test3  <- confusionMatrix(as.factor(comb_ecg_predicted_test), as.factor(y_ecg_test))
+
+
+balanced_accuracy_test3  <- cm_test3[["byClass"]][["Balanced Accuracy"]]
+
+
+#printing confusion matrix results of model3
+print(cm_test3$table)
+```
+
+```{r confusion matrix3, warning=FALSE ,message=FALSE}
+#printing confusion matrix results of model3
+print(balanced_accuracy_test3)
+
+```
+
+The model3 gives 73,52% accuracy.
+
+#PART F
+
+```{r model3 lambda.min, warning=FALSE ,message=FALSE}
+model3[["lambda.min"]]
+
+```
+
+```{r model3 lambda.graph, warning=FALSE ,message=FALSE}
+
+plot(model3[["lambda"]])
+
+```
+The accuracy of model 3 is lower compare to other two model. This might be caused due to overfitting since data values and their differances (intervals) can give similar information.It is better to use either model1 or model2.
